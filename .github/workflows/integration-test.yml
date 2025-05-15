@@ -48,10 +48,10 @@ jobs:
           fi
 
       - name: Run tests
-        run: mvn clean verify
-        env:
-          DB_URL: jdbc:mysql://localhost:3306/testdb
-          DB_USERNAME: root
-          DB_PASSWORD: Mysql123
+        run: |
+          mvn clean verify -Dspring.datasource.url=jdbc:mysql://localhost:3306/testdb \
+                           -Dspring.datasource.username=root \
+                           -Dspring.datasource.password=Mysql123
+      
 
 
