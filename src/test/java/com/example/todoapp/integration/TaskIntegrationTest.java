@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ActiveProfiles("test")
-@SpringBootTest(classes = TodoappApplication.class)
+@SpringBootTest(classes = TodoappApplication.class) //för todoapp
 @AutoConfigureMockMvc
 class TaskIntegrationTest {
 
