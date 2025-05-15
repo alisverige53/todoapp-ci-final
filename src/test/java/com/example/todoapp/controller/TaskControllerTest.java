@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@ActiveProfiles("test")
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class TaskControllerTest {
 

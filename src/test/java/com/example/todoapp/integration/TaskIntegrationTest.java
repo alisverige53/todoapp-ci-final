@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = TodoappApplication.class)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 class TaskIntegrationTest {
 
     @Autowired
