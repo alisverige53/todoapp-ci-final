@@ -2,9 +2,11 @@ package com.example.todoapp.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -12,13 +14,11 @@ public class User {
     private Long id;
 
     private String name;
-
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference //för att blir inte loop till ...
+    @JsonManagedReference
     private List<Task> tasks;
-
 
     public Long getId() {
         return id;
