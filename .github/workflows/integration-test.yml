@@ -48,7 +48,9 @@ jobs:
 
       - name: Run tests
         env:
-          DB_URL: jdbc:mysql://localhost:3307/testdb
+          DB_URL: jdbc:mysql://localhost:3306/testdb
           DB_USERNAME: root
           DB_PASSWORD: Mysql123
         run: mvn clean verify
+
+        #BYTE PORT
