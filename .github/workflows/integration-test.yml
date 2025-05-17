@@ -13,8 +13,8 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_DATABASE: testdb
           MYSQL_ROOT_PASSWORD: Mysql123
+          MYSQL_DATABASE: testdb
         ports:
           - 3307:3306
         options: >-
@@ -25,32 +25,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Wait for MySQL to be ready
-        run: |
-          for i in {1..30}; do
-            nc -z localhost 3307 && echo "MySQL is up" && break || (
-              echo "Waiting for MySQL..." && sleep 2
-            )
-          done
-          if ! nc -z localhost 3307; then
-            echo "MySQL did not become ready in time. Exiting."
-            exit 1
-          fi
+        uses: actions/checkout@v3
 
       - name: Run tests
         env:
-          DB_URL: jdbc:mysql://localhost:3306/testdb
+          DB_URL: jdbc:mysql://localhost:3307/testdb
           DB_USERNAME: root
           DB_PASSWORD: Mysql123
-          SPRING_PROFILES_ACTIVE: test
         run: mvn clean verify
-
-#final text

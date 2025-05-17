@@ -1,50 +1,68 @@
 package com.example.todoapp.controller;
 
 import com.example.todoapp.model.Task;
+import com.example.todoapp.model.User;
 import com.example.todoapp.service.TaskService;
-import com.example.todoapp.service.TaskServiceTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(TaskController.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class TaskControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @InjectMocks
+    private TaskController taskController;
+
+    @Mock
     private TaskService taskService;
+
+    @BeforeEach
+    void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(taskController).build();
+    }
 
     @Test
     void getAllTasks_shouldReturnTaskList() throws Exception {
-        // Arrange – skapa en uppgift att returnera från tjänsten
+        // Arrange
         Task task = new Task();
         task.setId(1L);
         task.setTitle("Do homework");
         task.setDescription("Write tests");
         task.setDone(false);
 
-        // Mocka tjänstbeteendet: när findAll() anropas, returnera listan
-        Mockito.when(taskService.getAllTasks()).thenReturn(List.of(task));
+        User user = new User();
+        user.setId(1L);
+        user.setName("Ali");
+        task.setUser(user);
 
+        List<Task> tasks = List.of(task);
+        when(taskService.findAll()).thenReturn(tasks);
 
-
-        // Act & Assert – skicka GET och kontrollera JSON-responsen
+        // Act & Assert
         mockMvc.perform(get("/api/tasks"))
+                .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].title").value("Do homework"))
                 .andExpect(jsonPath("$[0].description").value("Write tests"))
                 .andExpect(jsonPath("$[0].done").value(false));
@@ -52,69 +70,59 @@ public class TaskControllerTest {
 
     @Test
     void createTask_shouldReturnCreatedTask() throws Exception {
-        // Arrange – skapa en ny uppgift och konvertera till JSON
         Task task = new Task();
         task.setId(1L);
-        task.setTitle("Do homework");
-        task.setDescription("Write tests");
+        task.setTitle("New Task");
+        task.setDescription("Task Description");
         task.setDone(false);
+
+        when(taskService.create(any(Task.class))).thenReturn(task);
 
         String json = new ObjectMapper().writeValueAsString(task);
 
-        // Mocka create() för att returnera samma objekt
-        Mockito.when(taskService.create(Mockito.any(Task.class))).thenReturn(task);
-
-        // Act & Assert – skicka POST med JSON och kontrollera svaret
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Do homework"))
-                .andExpect(jsonPath("$.description").value("Write tests"))
-                .andExpect(jsonPath("$.done").value(false));
+                .andExpect(jsonPath("$.id").value(task.getId()))
+                .andExpect(jsonPath("$.title").value(task.getTitle()))
+                .andExpect(jsonPath("$.description").value(task.getDescription()))
+                .andExpect(jsonPath("$.done").value(task.isDone()));
     }
 
     @Test
-    void getTask_shouldReturnTaskById() throws Exception {
-        // Arrange – mocka ett specifikt objekt vid ID=1
+    void getTaskById_shouldReturnTask() throws Exception {
         Task task = new Task();
         task.setId(1L);
-        task.setTitle("Do homework");
-        task.setDescription("Write tests");
+        task.setTitle("Find Task");
+        task.setDescription("Find this task by ID");
         task.setDone(false);
 
-        Mockito.when(taskService.findById(1L)).thenReturn(Optional.of(task));
+        when(taskService.findById(1L)).thenReturn(Optional.of(task));
 
-        // Act & Assert – kontrollera GET /api/tasks/1 svarar korrekt
         mockMvc.perform(get("/api/tasks/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Do homework"))
-                .andExpect(jsonPath("$.description").value("Write tests"))
-                .andExpect(jsonPath("$.done").value(false));
+                .andExpect(jsonPath("$.id").value(task.getId()))
+                .andExpect(jsonPath("$.title").value(task.getTitle()))
+                .andExpect(jsonPath("$.description").value(task.getDescription()))
+                .andExpect(jsonPath("$.done").value(task.isDone()));
     }
 
     @Test
-    void getTask_shouldReturnNotFound() throws Exception {
-        // Arrange – mocka att ID 99 inte finns
-        Mockito.when(taskService.findById(99L)).thenReturn(Optional.empty());
+    void getTaskById_shouldReturnNotFound() throws Exception {
+        when(taskService.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert – kontrollera att status blir 404
         mockMvc.perform(get("/api/tasks/99"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void deleteTask_shouldDeleteSuccessfully() throws Exception {
-        // Arrange – sätt ett exempel-ID
+    void deleteTask_shouldDeleteTaskSuccessfully() throws Exception {
         Long taskId = 1L;
 
-        // Act & Assert – kontrollera att DELETE fungerar och metoden anropas
         mockMvc.perform(delete("/api/tasks/{id}", taskId))
                 .andExpect(status().isOk());
 
-        Mockito.verify(taskService).delete(taskId);
+        verify(taskService).delete(taskId);
     }
-
 }
