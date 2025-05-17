@@ -2,37 +2,28 @@ package com.example.todoapp.controller;
 
 import com.example.todoapp.model.User;
 import com.example.todoapp.service.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
+@WebMvcTest(UserController.class)
 public class UserControllerTest {
 
-    @InjectMocks
-    private UserController userController;
-
-    @Mock
-    private UserService userService;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @BeforeEach
-    void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
-    }
+    @MockBean
+    private UserService userService;
 
     @Test
     void getAllUsers_shouldReturnUserList() throws Exception {
@@ -48,7 +39,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].name").value("Ali"))
                 .andExpect(jsonPath("$[0].email").value("ali@example.com"));
     }
-
     @Test
     void createUser_shouldReturnCreatedUser() throws Exception {
         User user = new User();
@@ -61,14 +51,15 @@ public class UserControllerTest {
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                    {
-                      "name": "Ali",
-                      "email": "ali@example.com"
-                    }
-                """))
+                {
+                    "name": "Ali",
+                    "email": "ali@example.com"
+                }
+            """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Ali"))
                 .andExpect(jsonPath("$.email").value("ali@example.com"));
     }
+
 }

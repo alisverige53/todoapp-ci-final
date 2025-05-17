@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "task")
-
 public class Task {
 
     @Id
@@ -13,13 +11,15 @@ public class Task {
     private Long id;
 
     private String title;
-    private String description;
-    private boolean done;
 
+    private String description;
+
+    private boolean done;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
+    @JsonBackReference   // for stoppa loop till ..
     private User user;
+
 
     public Long getId() {
         return id;

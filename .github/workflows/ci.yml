@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     services:
@@ -41,5 +40,10 @@ jobs:
             sleep 2
           done
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Build and Test with Maven
+        run: mvn clean test
+
+    env:
+      DB_URL: jdbc:mysql://localhost:3306/testdb
+      DB_USERNAME: root
+      DB_PASSWORD: Mysql123
