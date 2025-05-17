@@ -38,8 +38,6 @@ class TaskIntegrationTest {
     void setUp() {
         taskRepository.deleteAll();
         userRepository.deleteAll();
-        taskRepository.flush();
-        userRepository.flush();
 
         User user = new User();
         user.setName("Ali");

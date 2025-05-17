@@ -1,10 +1,9 @@
 package com.example.todoapp.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-@Table(name = "task")
 public class Task {
 
     @Id
@@ -12,16 +11,15 @@ public class Task {
     private Long id;
 
     private String title;
-
     private String description;
-
     private boolean done;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference   // for stoppa loop till ..
+    @JsonBackReference
     private User user;
 
-
+    // Getters and Setters
     public Long getId() {
         return id;
     }
