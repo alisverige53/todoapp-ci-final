@@ -28,7 +28,7 @@ public class UserServiceTest {
         user.setEmail("ali@example.com");
 
         when(mockRepo.save(user)).thenReturn(user);   // Mockar så att save() returnerar user
-
+        // Act
         // Act
         User result = userService.create(user);
 
